@@ -26,6 +26,7 @@ typedef enum _BPStatus {
     IBOutlet id checkUpdatesOnStartup;
     IBOutlet id deviceName;
     IBOutlet id inRangeScriptPath;
+    IBOutlet id awakeScriptPath;
     IBOutlet id monitoringEnabled;
     IBOutlet id outOfRangeScriptPath;
     IBOutlet id prefsWindow;
@@ -42,6 +43,7 @@ typedef enum _BPStatus {
 - (void)menuIconInRange;
 - (void)menuIconOutOfRange;
 - (void)runInRangeScript;
+- (void)runAwakeScript;
 - (void)runOutOfRangeScript;
 - (void)startMonitoring;
 - (void)stopMonitoring;
@@ -56,6 +58,9 @@ typedef enum _BPStatus {
 - (IBAction)inRangeScriptChange:(id)sender;
 - (IBAction)inRangeScriptClear:(id)sender;
 - (IBAction)inRangeScriptTest:(id)sender;
+- (IBAction)awakeScriptChange:(id)sender;
+- (IBAction)awakeScriptClear:(id)sender;
+- (IBAction)awakeScriptTest:(id)sender;
 - (IBAction)outOfRangeScriptChange:(id)sender;
 - (IBAction)outOfRangeScriptClear:(id)sender;
 - (IBAction)outOfRangeScriptTest:(id)sender;

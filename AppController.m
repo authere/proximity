@@ -24,6 +24,7 @@
 	
 	[self createMenuBar];
 	[self userDefaultsLoad];
+    [self fileNotifications];
 }
 
 - (void)windowWillClose:(NSNotification *)aNotification
@@ -88,7 +89,30 @@
 	
 	[self startMonitoring];
 }
+- (void) receiveSleepNote: (NSNotification*) note
+{
+        //NSLog(@"receiveSleepNote: %@", [note name]);
+}
 
+- (void) receiveWakeNote: (NSNotification*) note
+{
+        [self runAwakeScript];
+        //NSLog(@"receiveSleepNote: %@", [note name]);
+}
+
+- (void) fileNotifications
+{
+        //These notifications are filed on NSWorkspace's notification center, not the default 
+        //notification center. You will not receive sleep/wake notifications if you file 
+        //with the default notification center.
+[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self 
+           selector: @selector(receiveSleepNote:) 
+           name: NSWorkspaceWillSleepNotification object: NULL];
+
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self 
+           selector: @selector(receiveWakeNote:) 
+           name: NSWorkspaceDidWakeNotification object: NULL];
+}
 - (BOOL)isInRange
 {
 	if( device && [device remoteNameRequest:nil] == kIOReturnSuccess )
@@ -140,6 +164,17 @@
 	ae = [script executeAndReturnError:&errDict];		
 }
 
+- (void)runAwakeScript
+{
+	NSAppleScript *script;
+	NSDictionary *errDict;
+	NSAppleEventDescriptor *ae;
+	
+	script = [[NSAppleScript alloc]
+			  initWithContentsOfURL:[NSURL fileURLWithPath:@"/Library/Scripts/Proximity/AwakeScript.scpt"]
+			  error:&errDict];
+	ae = [script executeAndReturnError:&errDict];		
+}
 - (void)runOutOfRangeScript
 {
 	NSAppleScript *script;
@@ -209,6 +244,11 @@
 	// In range script path
 	if( [[defaults stringForKey:@"inRangeScriptPath"] length] > 0 )
 		[inRangeScriptPath setStringValue:[defaults stringForKey:@"inRangeScriptPath"]];
+    
+    // In range script path
+	if( [[defaults stringForKey:@"awakeScriptPath"] length] > 0 )
+		[awakeScriptPath setStringValue:[defaults stringForKey:@"awakeScriptPath"]];
+    
 	
 	// Check for updates on startup
 	BOOL updating = [defaults boolForKey:@"updating"];
@@ -273,6 +313,9 @@
 	
 	// In range script
 	[defaults setObject:[inRangeScriptPath stringValue] forKey:@"inRangeScriptPath"];
+
+    // awake script
+	[defaults setObject:[awakeScriptPath stringValue] forKey:@"awakeScriptPath"];
 
 	// Out of range script
 	[defaults setObject:[outOfRangeScriptPath stringValue] forKey:@"outOfRangeScriptPath"];
@@ -376,6 +419,32 @@
 - (IBAction)inRangeScriptTest:(id)sender
 {
 	[self runInRangeScript];
+}
+
+- (IBAction)awakeScriptChange:(id)sender
+{
+	NSOpenPanel *op = [NSOpenPanel openPanel];
+    
+    NSArray *fileTypesArray;
+    fileTypesArray = [NSArray arrayWithObjects:@"scpt", nil];
+    
+    [op setCanChooseFiles:YES];
+    [op setAllowedFileTypes:fileTypesArray];
+    
+    if ( [op runModal] == NSOKButton ) {
+        NSArray *filenames = [op URLs];
+        [awakeScriptPath setStringValue:[[filenames objectAtIndex:0] path]];
+    }
+}
+
+- (IBAction)awakeScriptClear:(id)sender
+{
+	[awakeScriptPath setStringValue:@""];
+}
+
+- (IBAction)awakeScriptTest:(id)sender
+{
+	[self runAwakeScript];
 }
 
 - (IBAction)outOfRangeScriptChange:(id)sender
