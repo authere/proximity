@@ -171,7 +171,7 @@
 	NSAppleEventDescriptor *ae;
 	
 	script = [[NSAppleScript alloc]
-			  initWithContentsOfURL:[NSURL fileURLWithPath:@"/Library/Scripts/Proximity/AwakeScript.scpt"]
+			  initWithContentsOfURL:[NSURL fileURLWithPath:[awakeScriptPath stringValue]]
 			  error:&errDict];
 	ae = [script executeAndReturnError:&errDict];		
 }
