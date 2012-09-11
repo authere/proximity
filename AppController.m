@@ -96,7 +96,10 @@
 
 - (void) receiveWakeNote: (NSNotification*) note
 {
+    if( [self isInRange] )
+	{
         [self runAwakeScript];
+    }
         //NSLog(@"receiveSleepNote: %@", [note name]);
 }
 
@@ -105,7 +108,7 @@
         //These notifications are filed on NSWorkspace's notification center, not the default 
         //notification center. You will not receive sleep/wake notifications if you file 
         //with the default notification center.
-[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self 
+    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver: self 
            selector: @selector(receiveSleepNote:) 
            name: NSWorkspaceWillSleepNotification object: NULL];
 
